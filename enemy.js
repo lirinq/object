@@ -11,10 +11,10 @@ class  chara {
     }
     
     damage(dmgtaken){
+        this.hp -= damtaken;
         if(this.hp <= 0){
-        console.log(this.name + 'は倒れた！');
-        }else {
-        this.hp -= dmgtaken;
+            this.hp = 0;
+            console.log(this.name + 'は倒れた！');
         }
     }
 
@@ -36,6 +36,7 @@ class  chara {
             console.log('MPがたりない！');
         }
     }
+
 }
 // ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 //             ～ここから攻撃に関するクラス～
