@@ -59,6 +59,7 @@ function miniHeal(taraget){
 }
 
 
+
 let healing = new magic( "hoimi",4,miniHeal(taraget));
 const slarin = new chara("スラりん","スライムベス",9,38,12,12);
 const slami = new chara("スラみ","スライムベス",14,12,12,12);
