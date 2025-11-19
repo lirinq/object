@@ -30,13 +30,15 @@ class  chara {
             this.hp = this.maxHp;//最大HPを超えて回復しないように最大HPと現在のHPを同じにする
         }
     }
-    castSpell(caster, target,cast){//魔法を唱えるためのプロパティ　(詠唱者、標的、唱える魔法)
-        if(caster.mp < cast.cost){
-            caster.mp -= cast.mp;
-            return cast.effect;
-        }else if(target.mp > cast.cost){
+    useMp(cast){//MPを消費するためのプロパティ　
+        if(this.mp > cast.cost){
+            this.mp -= cast.mp;
+        }else if(this.mp < cast.cost){
             console.log('MPがたりない！');
         }
+    }
+    castSpell(){
+        
     }
 
 }
