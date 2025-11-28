@@ -10,26 +10,24 @@ class  chara {
         this.maxHp= maxHp;
     }
     
-    damage(dmgtaken){
-        this.hp -= dmgtaken;
-        if(this.hp <= 0){
+
+    hpEffect(effectaken){
+        this.hp += effectaken;
+
+        if(this.hp >= this.maxHp){
+            this.hp = this.maxHp;
+        }else if(this.hp <= 0){
             this.hp = 0;
             console.log(this.name + 'は倒れた！');
         }
+
+        return this.hp
     }
 
-    heal(healtaken){
-        this.hp += healtaken;//まずhpに回復分の数値を＋する
-        //ここからは回復したHPが最大値を超えてないか、超えてたなら最大値に書き換える式
-        if(this.hp >= this.maxHp){//もしこのキャラのHPが最大値以上なら
-            this.hp = this.maxHp;//このキャラのHPは最大値と同じにする
-            console.log('すでにHPは満タンだ！');
-        }
-    }
-    castSpell(caster, target,spell){//MPを消費するときに使うメソッド
-        if(caster.mp >= spell.mp){//もし詠唱者のMPが呪文の消費MP以上なら
-            caster.mp -= spell.mp;//詠唱者のMPから呪文の消費MP文を－する
-            target.hp += spell.amount;//対象者のHPに呪文の影響を与える数値を＋する
+    castSpell(target,spell){//MPを消費するときに使うメソッド
+        if(this.mp >= spell.mp){//もし詠唱者のMPが呪文の消費MP以上なら
+            this.mp -= spell.mp;//詠唱者のMPから呪文の消費MP文を－する
+            target.hp = target.hpEffect(spell.amount)//対象者のHPに呪文の影響を与える数値を＋する
         }else{//上記の条件に当てはまらないのなら
             console.log('MPがたりない！');//魔法は発動せずメッセージをコンソールに出力する
         }
@@ -51,16 +49,13 @@ class magic {
 
 
 let healing = new magic( "hoimi",4,3);
+let normalatack = new magic("攻撃" , 0, -6);
 const slarin = new chara("スラりん","スライムベス",9,38,12,12);
 const slami = new chara("スラみ","スライムベス",14,12,12,12);
 
 
-slami.damage(10);
-console.log(slami);
-slami.castSpell(slami,slami,healing);
-// slami.heal(5);
-
-console.log(8 + -3);
-
-console.log(slami);
+slarin.castSpell(slami,normalatack);
+console.log(slami,"攻撃後");
+slami.castSpell(slami,healing);
+console.log(slami,"回復後");
 
