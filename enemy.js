@@ -26,9 +26,10 @@ class  chara {
             console.log('すでにHPは満タンだ！');
         }
     }
-    castSpell(caster, spell){//MPを消費するときに使うメソッド
+    castSpell(caster, target,spell){//MPを消費するときに使うメソッド
         if(caster.mp >= spell.mp){//もし詠唱者のMPが呪文の消費MP以上なら
             caster.mp -= spell.mp;//詠唱者のMPから呪文の消費MP文を－する
+            target.hp += spell.amount;//対象者のHPに呪文の影響を与える数値を＋する
         }else{//上記の条件に当てはまらないのなら
             console.log('MPがたりない！');//魔法は発動せずメッセージをコンソールに出力する
         }
@@ -54,11 +55,12 @@ const slarin = new chara("スラりん","スライムベス",9,38,12,12);
 const slami = new chara("スラみ","スライムベス",14,12,12,12);
 
 
-slami.damage(3);
+slami.damage(10);
 console.log(slami);
-slami.castSpell(slami,healing);
-slami.heal(5);
+slami.castSpell(slami,slami,healing);
+// slami.heal(5);
 
+console.log(8 + -3);
 
 console.log(slami);
 
