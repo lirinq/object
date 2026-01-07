@@ -5,15 +5,69 @@
 <title>title</title>
 <meta name='viewport' content='width=device-width, initial-scale=1.0'></meta>
 <meta></meta>
-<script src="enemy.js"></script>
+<link rel="stylesheet" href="style.css">
+<script src="enemy.js" defer></script>
 </head>
 <body>
-<header>
-
-</header>
 <main>
+    <div id="eSt">
+        <p id="eName"></p>
+        <p id="eHp"></p>
+        <div id="eHpbar"></div>
+    </div>
+
+    <div id="st">
+        <p id="name"></p>
+        <p id="hp"></p>
+        <div id="hpbar"></div>
+    </div>
+
+    <div id="window">
+        <div id="selwin">
+            <button id="attack-pop-btn">攻撃</button>
+            <div class="atk-pop-win">
+                <ul>
+                    <li><button></button></li>
+                    <li><button></button></li>
+                </ul>
+                <button class="return-btn"></button>
+            </div>
+            <button id="magic-pop-btn">魔法</button>
+            <div class="mgi-pop-win">
+                <ul>
+                    <li><button></button></li>
+                    <li><button></button></li>
+                    <li><button></button></li>
+                    <li><button></button></li>
+                </ul>
+                <button class="return-btn"></button>
+            </div>
+        </div>
+        <div id="meswin">
+            <p>メッセージ</p>
+        </div>
+    </div>
 </main>
-<footer>
-</footer>
+
+
+ <!-- <div class="layer js-modal">
+    <div class="modal">
+      <div class="modal__inner">
+        <div class="modal__button-wrap">
+          <button class="close-button js-close-button">
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+        <div class="modal__contents">
+          <div class="modal__content">
+            コンテンツが入ります。コンテンツが入ります。コンテンツが入ります。コンテンツが入ります。コンテンツが入ります。コンテンツが入ります。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="button js-modal-button">モーダルボタン</button> -->
 </body>
 </html>

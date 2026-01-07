@@ -10,7 +10,6 @@ class  chara {
         this.maxHp= maxHp;
     }
     
-
     hpEffect(effectaken){
         this.hp += effectaken;
 
@@ -54,14 +53,10 @@ const slarin = new chara("スラりん","スライムベス",9,38,12,12);
 const slami = new chara("スラみ","スライムベス",14,12,12,12);
 
 
-// slarin.castSpell(slami,nAt);
-// slarin.castSpell(slami,fire);
-// console.log(slami,"攻撃後");
-// slami.castSpell(slami,healing);
-// console.log(slami,"回復後");
+
 
 function enemyego(i , enemy){
-    randA = atack[Math.floor(Math.random() * atack.length)];
+    let randA = atack[Math.floor(Math.random() * atack.length)];
 
     if(i.hp < i.maxHp /2 && Math.random() * 0.2){
         i.castSpell(i,healing);
@@ -90,3 +85,15 @@ enemyego(slami,slarin);
 
 enemyego(slarin ,slami);
 console.log(slami,slarin,"2回目");
+
+
+// =================
+// ここからキャンバス
+// =================
+function drow(){
+    const canvas = document.getElementById("tutorial");
+    if(canvas.getContext){
+        const ctx = canvas.getContext("2d");
+    }
+}
+window.addEventListener("load",drow());
