@@ -54,21 +54,39 @@ const slarin = new chara("スラりん","スライムベス",9,38,12,12);
 const slami = new chara("スラみ","スライムベス",14,12,12,12);
 
 
-slarin.castSpell(slami,nAt);
-slarin.castSpell(slami,fire);
-console.log(slami,"攻撃後");
-slami.castSpell(slami,healing);
-console.log(slami,"回復後");
+// slarin.castSpell(slami,nAt);
+// slarin.castSpell(slami,fire);
+// console.log(slami,"攻撃後");
+// slami.castSpell(slami,healing);
+// console.log(slami,"回復後");
 
-function enemyego(i){
+function enemyego(i , enemy){
+    randA = atack[Math.floor(Math.random() * atack.length)];
+
     if(i.hp < i.maxHp /2 && Math.random() * 0.2){
         i.castSpell(i,healing);
+        console.log(i.name , "ヒール");
         return;
     }
 
-    if(i.mp >= atack[Math.random() ].mp &&)
+    if(i.mp >= randA.mp && Math.random() > 0.5){
+        i.castSpell(enemy , randA);
+        console.log( i.name , randA.name + "攻撃");
+        return;
+    }
+
+    console.log(i.name ,"行動なし");
+    return;
 }
 
+enemyego(slami ,slarin);
 
-enemyego(slami);
-console.log(slami,"行動後");
+
+enemyego(slarin ,slami);
+console.log(slami,slarin,"1回目");
+
+enemyego(slami,slarin);
+
+
+enemyego(slarin ,slami);
+console.log(slami,slarin,"2回目");
