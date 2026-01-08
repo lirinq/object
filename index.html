@@ -5,18 +5,22 @@
 <title>title</title>
 <meta name='viewport' content='width=device-width, initial-scale=1.0'></meta>
 <meta></meta>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="css/reset.css">
+<link rel="stylesheet" href="css/style.css">
 <script src="enemy.js" defer></script>
+<script src="grp.js"></script>
 </head>
 <body>
 <main>
     <div id="eSt">
+        <img src="img/slime_blue.png" alt="enemy_img">
         <p id="eName"></p>
         <p id="eHp"></p>
         <div id="eHpbar"></div>
     </div>
 
     <div id="st">
+        <img src="img/slime_red.jpg" alt="hero_img">
         <p id="name"></p>
         <p id="hp"></p>
         <div id="hpbar"></div>
@@ -24,15 +28,15 @@
 
     <div id="window">
         <div id="selwin">
-            <button id="attack-pop-btn">攻撃</button>
-            <div class="atk-pop-win">
+            <button id="attack-pop-btn" class="act-btn">攻撃</button>
+            <div class="atk-pop-win ">
                 <ul>
                     <li><button></button></li>
                     <li><button></button></li>
                 </ul>
                 <button class="return-btn"></button>
             </div>
-            <button id="magic-pop-btn">魔法</button>
+            <button id="magic-pop-btn" class="act-btn">魔法</button>
             <div class="mgi-pop-win">
                 <ul>
                     <li><button></button></li>
