@@ -6,6 +6,7 @@
 <meta name='viewport' content='width=device-width, initial-scale=1.0'></meta>
 <meta></meta>
 <link rel="stylesheet" href="css/reset.css">
+<link href="https://unpkg.com/nes.css@2.3.0/css/nes.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="css/style.css">
 <script src="enemy.js" defer></script>
 <script src="grp.js"></script>
@@ -13,23 +14,23 @@
 <body>
 <main>
     <div id="eSt">
-        <img src="img/slime_blue.png" alt="enemy_img">
+        <img src="img/slime_red.jpg" alt="enemy_img">
         <p id="eName"></p>
         <p id="eHp"></p>
         <div id="eHpbar"></div>
     </div>
 
     <div id="st">
-        <img src="img/slime_red.jpg" alt="hero_img">
+        <img src="img/haigo.png" alt="hero_img">
         <p id="name"></p>
         <p id="hp"></p>
         <div id="hpbar"></div>
     </div>
 
-    <div id="window">
+    <div class="nes-container is-dark with-title" id="window">
         <div id="selwin">
             <button id="attack-pop-btn" class="act-btn">攻撃</button>
-            <div class="atk-pop-win ">
+            <div class="atk-pop-win">
                 <ul>
                     <li><button></button></li>
                     <li><button></button></li>

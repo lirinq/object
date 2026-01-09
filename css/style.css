@@ -8,5 +8,5 @@ body{
 background-color: black;
 }
 .act-btn{
-    border: none;
+    border: 1px  #ffffff dotted;
 }
