@@ -13,24 +13,32 @@
 </head>
 <body>
 <main>
+  <div class="wrap">
     <div id="eSt">
-        <img src="img/slime_red.jpg" alt="enemy_img">
-        <p id="eName"></p>
-        <p id="eHp"></p>
-        <div id="eHpbar"></div>
+        <img src="img/slime_blue.png" alt="enemy_img"  width="200" height="200">
+        <div  class="nes-container is-rounded is-dark statusWin">
+          <p id="eName">敵</p>
+          <p id="eHp">100/100</p>
+          <progress id="ehpbar"  class="nes-progress is-primary" value="100" max="100"></progress>
+        </div>
     </div>
 
     <div id="st">
-        <img src="img/haigo.png" alt="hero_img">
-        <p id="name"></p>
-        <p id="hp"></p>
-        <div id="hpbar"></div>
+        <img src="img/haigo.png" alt="hero_img" width="200" height="200">
+        <div  class="nes-container is-rounded is-dark statusWin">
+          <p id="name">自分</p>
+          <p id="hp">100/100</p>
+          <progress id="hpbar"  class="nes-progress is-primary" value="100" max="100"></progress>
+        </div>
     </div>
+
+
+
 
     <div class="nes-container is-dark with-title" id="window">
         <div id="selwin">
             <button id="attack-pop-btn" class="act-btn">攻撃</button>
-            <div class="atk-pop-win">
+            <div class="atk-pop-win popClose">
                 <ul>
                     <li><button></button></li>
                     <li><button></button></li>
@@ -38,7 +46,7 @@
                 <button class="return-btn"></button>
             </div>
             <button id="magic-pop-btn" class="act-btn">魔法</button>
-            <div class="mgi-pop-win">
+            <div class="mgi-pop-win popClose">
                 <ul>
                     <li><button></button></li>
                     <li><button></button></li>
@@ -51,6 +59,7 @@
         <div id="meswin">
             <p>メッセージ</p>
         </div>
+    </div>
     </div>
 </main>
 

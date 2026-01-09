@@ -1,12 +1,58 @@
 @charset "UTF-8";
 
 body{
-    background-color: #ffffff;
+    background-color: #000000;
     color: #ffffff;
+}
+.wrap{
+    max-width: 800px;
+    margin: 0 auto;
+    max-height: 100vh;
 }
 #window{
 background-color: black;
+display: flex;
+min-height: 30vh;
 }
 .act-btn{
     border: 1px  #ffffff dotted;
+}
+.statusWin{
+    width: 250px;
+    height: auto;
+    padding: 0;
+    padding-left: 10px;
+}
+.selWin{
+    display: flex;
+}
+#ehpbar,#hpbar{
+    margin-top: 0;
+    margin-left: -5px;
+    width: 200px;
+    height: 30px;
+}
+#eHp,#hp{
+    margin-bottom: 0;
+}
+#eSt{
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: self-end;
+    margin-bottom: -80px;
+}
+#st{
+    
+}
+#eSt img{
+    margin-top: -50px;
+    margin-right: 50px;
+}
+
+#st img{
+    margin-bottom: -50px;
+    margin-left: 50px;
+}
+.popClose{
+    display: none;
 }
