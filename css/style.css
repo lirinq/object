@@ -13,9 +13,11 @@ body{
 background-color: black;
 display: flex;
 min-height: 30vh;
+padding: 0;
 }
+
 .act-btn{
-    border: 1px  #ffffff dotted;
+    margin-bottom: 15px;
 }
 .statusWin{
     width: 250px;
@@ -23,8 +25,21 @@ min-height: 30vh;
     padding: 0;
     padding-left: 10px;
 }
-.selWin{
+#selwin{
     display: flex;
+    width: 30%;
+    height: auto;
+    flex-direction: column;
+    margin: 0;
+    padding-left: 5px;
+    padding-right: 0;
+}
+#meswin{
+    margin: 0;
+    width: 70%;
+}
+.act-btn{
+    text-align: center;
 }
 #ehpbar,#hpbar{
     margin-top: 0;
@@ -38,20 +53,23 @@ min-height: 30vh;
 #eSt{
     display: flex;
     flex-direction: column-reverse;
+    position: relative;
     align-items: self-end;
-    margin-bottom: -80px;
+    margin-bottom: -130px;
 }
 #st{
     
 }
 #eSt img{
-    margin-top: -50px;
-    margin-right: 50px;
+    position: absolute;
+    top: 120px;
+    margin-right: 120px;
 }
 
 #st img{
-    margin-bottom: -50px;
-    margin-left: 50px;
+    margin-top: 120px;
+    margin-bottom: -70px;
+    margin-left: 100px;
 }
 .popClose{
     display: none;
