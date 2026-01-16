@@ -70,56 +70,114 @@ class Magic {
     
 }
 
+class Physical {
+    constructor(name,hp,amount) {
+        this.name = name;//魔法の名前
+        this.hp = hp;//消費する㏋
+        this.amount = amount;//影響を与える数値
+    }
+    
+}
+/*
+ターンの管理
+勝敗の確認
+ステータスの更新
+*/
+class BattleManager{
+    constructor(){
+    
+    }
+
+}
+
 let fire = new Magic("fire", 4,-6);
-let nAttack = new Magic("攻撃" , 0, -7);
-let attack = [fire,nAttack];
+let ice = new Magic("ice" , 2, -4);
+let mgiattack = [fire,ice];
+let normal = new Physical("通常攻撃",0,-2);
+let highAttack = new Physical("強めの攻撃",4,-7);
+let physicalAttack= [normal,highAttack];
 let healing = new Magic( "ホイミ",4,4);
 const attackBtn= document.getElementById('attack-pop-btn');
+const nextBtn = document.getElementById('mesNext');
+const enemyName = document.getElementById('eName');
+const playerName = document.getElementById('name');
+const enemyHp = document.getElementById('eHp');
+const playerHp = document.getElementById('hp');
+let enemyBar = document.getElementById('ehpbar');
+let playerBar = document.getElementById('hpbar');
+const enemySt = new Chara("スラりん","スライムベス",100,100,12,100);
+const playerSt = new Chara("スラみ","スライムベス",100,100,12,100);
 
-const slarin = new Chara("スラりん","スライムベス",9,38,12,12);
-const slami = new Chara("スラみ","スライムベス",14,12,12,12);
+function refreshStatus(){
+    playerHp.innerHTML = `<p>${playerSt.hp}/${playerSt.maxHp}</p>`;
+    playerName.innerText = playerSt.name;
+    playerBar.setAttribute('value' , `${playerSt.hp}`);
+    enemyHp.innerHTML = `<p>${enemySt.hp}/${enemySt.maxHp}</p>`;
+    enemyName.innerText = enemySt.name;
+    enemyBar.setAttribute('value' , `${enemySt.hp}`);
+}
+document.addEventListener('DOMContentLoaded' , function situationLoad(){
+    refreshStatus();
+});
 
 
 
-
-function enemyAction(player , enemy){
+function enemyAction(attacker , target){
+    console.log("enemyAction 実行");
+    console.count("enemyAction");
 //配列attackからランダムな数値を指定し、取り出すために何度も記述する労力をカット＋結果を統一するため
-    let randAtc = attack[Math.floor(Math.random() * attack.length)];
-    if(player.hp <= player.maxHp /2 && Math.random() < 0.2){
-        player.castSpell(player,healing);
-        console.log(player.name , "ヒール");
-        mesTex.innerHTML = `<p>${player.name}は${healing.name}を唱えた</p>`;
+    let randAtc = mgiattack[Math.floor(Math.random() * mgiattack.length)];
+    if(attacker.hp <= attacker.maxHp /2 && Math.random() < 0.2){
+        attacker.castSpell(attacker,healing);
+        console.log(attacker.name , "ヒール");
+        // mesTex.innerHTML = `<p>${attacker.name}は${healing.name}を唱えた</p>`;
+        refreshStatus();
         return;
     }
 
-    if(player.mp >= randAtc.mp && Math.random() > 0.5){
-        player.castSpell(enemy , randAtc);
-        console.log( player.name , randAtc.name + "攻撃");
-        mesTex.innerHTML = `<p>${player.name}の${randAtc.name}！</p>`;
+    if(attacker.mp >= randAtc.mp && Math.random() > 0.5){
+        attacker.castSpell(target , randAtc);
+        console.log( attacker.name , randAtc.name + "攻撃");
+//        mesTex.innerHTML = `<p>${attacker.name}の${randAtc.name}！</p><br><p>${randAtc.amount}のダメージを${target.name}に与えた！</p>`;
+        refreshStatus();
         return;
     }
-
-    console.log(player.name ,"行動なし");
+    
+    mesTex.innerHTML = `<p>${attacker.name}はボーっとしている。</p>`;
+    refreshStatus();
     return;
 }
 
-/*
-魔法ボタンを押したときの処理
+const mgiBtn= document.getElementById('magic-pop-btn');
+const phyBtn= document.getElementById('attack-pop-btn');
 
-*/
-
-const mgiBtn= document.getElementById('mgi-pop-btn');
-function player_magicAttack_action(i,enemy){
-
-
-    enemyAction(i,enemy);
-}
-mgiBtn.addEventListener("click",()=>player_magicAttack_action(slami,slarin));
 /*
 攻撃ボタンを押したときの処理
 
 */
-function player_physicalAttack_action(i,enemy){
+function player_physicalAttack_action(player,enemy){
 
-    enemyAction(i,enemy);
+    enemyAction(player,enemy);
 }
+phyBtn.addEventListener("click",() =>player_physicalAttack_action(enemySt,enemySt));
+
+/*
+
+魔法ボタンを押したときの処理
+
+*/
+function player_magicAttack_action(attacker,target){
+    let randAtc = mgiattack[Math.floor(Math.random() * mgiattack.length)];
+    //攻撃
+    attacker.castSpell(target,randAtc);
+    //攻撃の処理を出力
+    mesTex.innerHTML = `<p>${attacker.name}の${randAtc.name}！</p>
+    <br><p>${randAtc.amount}のダメージを${target.name}に与えた！</p>`;
+    //HPの書き換え
+    refreshStatus();
+    //メッセージウィンドウをクリックしたら敵の行動を実施
+};
+
+
+mgiBtn.addEventListener("click",() =>player_magicAttack_action(playerSt,enemySt));
+nextBtn.addEventListener("click" ,() => enemyAction(playerSt,enemySt));
