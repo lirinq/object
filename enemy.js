@@ -1,7 +1,7 @@
 "use strict";
 const mesTex = document.getElementById('mesTex');
 
-class  character {
+class  Character {
     constructor(name,breed,hp,mp,maxMp,maxHp){
         this.name = name;
         this.breed = breed;
@@ -49,13 +49,21 @@ HPの処理専門のメソッドを作ることで、
         }
     }
 
-    castSpell(/*target,*/spell){//MPを消費するときに使うメソッド target=攻撃対象　spell=呼び出す魔法
+    castSpell(spell){//MPを消費するときに使うメソッド target=攻撃対象　spell=呼び出す魔法
         if(this.mp >= spell.mp){//もし詠唱者のMPが呪文の消費MP以上なら
             this.mp -= spell.mp;//詠唱者のMPから呪文の消費MP文を－する
             return true;
             //target.hpEffect(spell.amount);対象者のHPに呪文の影響を与える数値を＋する
         }else{//上記の条件に当てはまらないのなら
             //魔法は発動しない
+            return false;
+        }
+    }
+
+    doAction(actionCost){
+        if(this.hp >= actionCost.hp){
+            this.hp -= actionCost.hp;
+        }else{
             return false;
         }
     }
@@ -75,9 +83,9 @@ class Magic {
 }
 
 class Physical {
-    constructor(name,hp,amount) {
+    constructor(name,hpCost,amount) {
         this.name = name;//魔法の名前
-        this.hp = hp;//消費する㏋
+        this.hpCost = hpCost;//消費する㏋
         this.amount = amount;//影響を与える数値
     }
     
@@ -109,9 +117,9 @@ class GameManager{
     ターンの終了時につかう
     */
     SwitchTurn(){
-        if(this.turn === this.player){
+        if(this.turn === 'player'){
             this.turn = this.enemy ;
-        }else if(this.turn === this.enemy){
+        }else if(this.turn === 'enemy'){
             this.turn = this.player;
         }
     }
@@ -120,11 +128,11 @@ class GameManager{
     isResultを書き換える
     */
     resultConfirm (){
-        if(this.enemy.isAlive === false || this.enemy.isAlive === false){
+        if(this.player.isAlive === false || this.enemy.isAlive === false){
             this.enemy.isResult = 'lose';
             this.player.isResult = 'lose';
             return;   
-        }else if(this.enemy.isAlive === true || this.enemy.isAlive === false){
+        }else if(this.enemy.isAlive === true || this.player.isAlive === false){
             this.enemy.isResult = 'win';
             return;
         }else if(this.player.isAlive === true || this.enemy.isAlive === false){
@@ -171,7 +179,7 @@ let fire = new Magic("fire", 4,-6);
 let ice = new Magic("ice" , 2, -4);
 let magicAttack = [fire,ice];
 let normal = new Physical("通常攻撃",0,-2);
-let highAttack = new Physical("強攻撃",4,-7);
+let highAttack = new Physical("強攻撃",-4,-7);
 let physicalAttack= [normal,highAttack];
 let healing = new Magic( "ホイミ",4,4);
 /*=======================================
@@ -181,8 +189,8 @@ let healing = new Magic( "ホイミ",4,4);
 /*=======================================
         ここからキャラクターの初期設定
 =========================================*/
-const enemySt = new character("スラりん","スライムベス",100,100,12,100);
-const playerSt = new character("スラみ","スライムベス",100,100,12,100);
+const enemySt = new Character("スラりん","スライムベス",100,100,100,100);
+const playerSt = new Character("スラみ","スライムベス",100,100,100,100);
 /*=======================================
         ここまでキャラ設定
 =========================================*/
@@ -197,6 +205,8 @@ let playerName = document.getElementById('name');
 let enemyName = document.getElementById('eName');//名前
 let playerHp = document.getElementById('hp');
 let enemyHp = document.getElementById('eHp');//HP表記
+let playerMp = document.getElementById('mp');
+let enemyMp = document.getElementById('eMp');//MP表記
 /*=======================================
         ここまでシステム初期設定
 =========================================*/
@@ -205,11 +215,14 @@ function refreshStatus(){
     playerHpBar.value = playerSt.hp;
     enemyHpBar.value = enemySt.hp;
 
-    playerHp.innerHTML = `100 / ${playerSt.hp}`;
-    enemyHp.innerHTML = `100 / ${enemySt.hp}`;
+    playerHp.innerHTML = `HP: ${playerSt.maxHp} / ${playerSt.hp}`;
+    enemyHp.innerHTML = `HP: ${playerSt.maxHp} / ${enemySt.hp}`;
 
     playerName.innerHTML = `${playerSt.name}`;
     enemyName.innerHTML = `${enemySt.name}`;
+
+    playerMp.innerHTML = `MP: ${playerSt.maxMp} / ${playerSt.mp} `;
+    enemyMp.innerHTML = `MP: ${enemySt.maxMp}/ ${enemySt.mp}`;
 
     if(playerSt.hp <= 0 || enemySt.hp <= 0){
         GM.resultConfirm();
@@ -220,11 +233,10 @@ function refreshStatus(){
         }else if(playerSt.hp <= 0){
             mesTex.innerHTML = `${enemySt.name}の勝利！`; 
         }
-        GM.resultConfirm();
     }
 }
 
-window.addEventListener('load',refreshStatus());
+window.addEventListener('load',refreshStatus);
 
 /*============================================
         ここから敵の攻撃function
@@ -235,7 +247,7 @@ function enemyAction(attacker , target){
 //配列attackからランダムな数値を指定し、取り出すために何度も記述する労力をカット＋結果を統一するため
     let randMgi = magicAttack[Math.floor(Math.random() * magicAttack.length)];
     let randPhys =physicalAttack[Math.floor(Math.random() * physicalAttack.length)];
-    if(attacker.hp <= attacker.maxHp /2 && Math.random() < 0.2){
+    if(attacker.hp <= attacker.maxHp / 2 && Math.random() < 0.2){
         attacker.castSpell(healing);
         attacker.hpEffect(healing.amount);
         console.log(attacker.name , "ヒール");
@@ -253,7 +265,8 @@ function enemyAction(attacker , target){
         refreshStatus();
         return;
     }
-        attacker.castSpell(randPhys);
+        attacker.doAction(randPhys);
+        attacker.hpEffect(randPhys.hpCost);
         target.hpEffect(randPhys.amount);
         GM.createLog(attacker,target,randPhys);
         mesTex.innerHTML = `<p>${attacker.name}の${randPhys.name}！
@@ -279,7 +292,8 @@ enemyAct.addEventListener('click', ()=>{
 
 function playerPhyAction(attacker,target){
     const randPhys =physicalAttack[Math.floor(Math.random() * physicalAttack.length)];
-    attacker.castSpell(randPhys);
+    attacker.doAction(randPhys);
+    attacker.hpEffect(randPhys.hpCost);
     target.hpEffect(randPhys.amount);
     GM.createLog(attacker,target,randPhys);
     mesTex.innerHTML = `<p>${attacker.name}の${randPhys.name}！
@@ -302,7 +316,7 @@ function playerMgiAction(attacker,target){
     }else if(attacker.mp >= randMgi.mp && Math.random() > 0.5){
         attacker.castSpell(randMgi);
         target.hpEffect(randMgi.amount);
-        mesTex.innerHTML = `<p>${attacker.name}の${randMgi.name}！
+        mesTex.innerHTML = `<p>${attacker.name}の${randMgi.name}!
         </p><br><p>${randMgi.amount}のダメージを${target.name}に与えた！</p>`;
         GM.createLog(attacker,target,randMgi);
         refreshStatus();
