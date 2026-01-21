@@ -207,10 +207,11 @@ let playerHp = document.getElementById('hp');
 let enemyHp = document.getElementById('eHp');//HP表記
 let playerMp = document.getElementById('mp');
 let enemyMp = document.getElementById('eMp');//MP表記
+let playerBtn = document.getElementById('selWin');
+let enemyBtn = document.getElementById('mesNext');//行動ボタン
 /*=======================================
         ここまでシステム初期設定
 =========================================*/
-
 function refreshStatus(){
     playerHpBar.value = playerSt.hp;
     enemyHpBar.value = enemySt.hp;
@@ -221,9 +222,11 @@ function refreshStatus(){
     playerName.innerHTML = `${playerSt.name}`;
     enemyName.innerHTML = `${enemySt.name}`;
 
-    playerMp.innerHTML = `MP: ${playerSt.maxMp} / ${playerSt.mp} `;
-    enemyMp.innerHTML = `MP: ${enemySt.maxMp}/ ${enemySt.mp}`;
+    playerMp.innerHTML = `MP:${playerSt.maxMp}/${playerSt.mp}`;
+    enemyMp.innerHTML = `MP:${enemySt.maxMp}/${enemySt.mp}`;
 
+    enemyBtn.classList.add('pointerNone');
+    
     if(playerSt.hp <= 0 || enemySt.hp <= 0){
         GM.resultConfirm();
         if(playerSt.hp <= 0 && enemySt.hp <= 0){
@@ -234,10 +237,14 @@ function refreshStatus(){
             mesTex.innerHTML = `${enemySt.name}の勝利！`; 
         }
     }
-}
 
+}
 window.addEventListener('load',refreshStatus);
 
+function changeTurn(){
+    playerBtn.classList.toggle('pointerNone');
+    enemyBtn.classList.toggle('pointerNone');
+}
 /*============================================
         ここから敵の攻撃function
 =============================================*/
@@ -254,6 +261,7 @@ function enemyAction(attacker , target){
         mesTex.innerHTML = `<p>${attacker.name}は${healing.name}を唱えた</p>`;
         GM.createLog(attacker,target,healing);
         console.log(GM);
+        changeTurn();
         refreshStatus();
         return;
     }else if(attacker.mp >= randMgi.mp && Math.random() > 0.5){
@@ -262,6 +270,7 @@ function enemyAction(attacker , target){
         mesTex.innerHTML = `<p>${attacker.name}の${randMgi.name}！
         </p><br><p>${randMgi.amount}のダメージを${target.name}に与えた！</p>`;
         GM.createLog(attacker,target,randMgi);
+        changeTurn();
         refreshStatus();
         return;
     }
@@ -271,6 +280,7 @@ function enemyAction(attacker , target){
         GM.createLog(attacker,target,randPhys);
         mesTex.innerHTML = `<p>${attacker.name}の${randPhys.name}！
         ${target.name}に${randPhys.amount}のダメージ！</p>`;
+        changeTurn();
         refreshStatus();
         return;
 }
@@ -302,6 +312,7 @@ function playerPhyAction(attacker,target){
     return;
 }
 
+
 function playerMgiAction(attacker,target){
     const randMgi = magicAttack[Math.floor(Math.random() * magicAttack.length)];
     if(attacker.hp <= attacker.maxHp /2 && Math.random() < 0.2){
@@ -329,9 +340,11 @@ const MgiAtkBtn= document.getElementById('magic-pop-btn');
 
 PhyAtkBtn.addEventListener('click' ,()=>{ 
     playerPhyAction(playerSt,enemySt);
+    changeTurn();
     console.log(GM.logs);
 });
 MgiAtkBtn.addEventListener('click' ,()=>{ 
     playerMgiAction(playerSt,enemySt);
+    changeTurn();
     console.log(GM.logs);
 });

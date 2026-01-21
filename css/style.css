@@ -1,21 +1,24 @@
 @charset "UTF-8";
 
 body{
-    background-color: #000000;
+    background-color: #212529;
     color: #ffffff;
+    user-select: none;
 }
 .wrap{
     max-width: 800px;
     margin: 0 auto;
     max-height: 100vh;
 }
+#battleUi{
+    height: 72vh;
+}
 #window{
-background-color: black;
+background-color: #212529;
 display: flex;
-min-height: 30vh;
+min-height: 26vh;
 padding: 0;
 }
-
 .act-btn{
     margin-bottom: 15px;
 }
@@ -25,7 +28,7 @@ padding: 0;
     padding: 0;
     padding-left: 10px;
 }
-#selwin{
+#selWin{
     display: flex;
     width: 30%;
     height: auto;
@@ -34,7 +37,7 @@ padding: 0;
     padding-left: 5px;
     padding-right: 0;
 }
-#meswin{
+#mesWin{
     padding: 0;
     margin: 0;
     width: 70%;
@@ -44,7 +47,7 @@ padding: 0;
 .act-btn{
     text-align: center;
 }
-#ehpbar,#hpbar{
+#eHpBar,#hpBar{
     margin-top: 0;
     margin-left: -5px;
     width: 200px;
@@ -58,11 +61,8 @@ padding: 0;
     flex-direction: column-reverse;
     position: relative;
     align-items: self-end;
-    margin-bottom: -130px;
 }
-#st{
-    
-}
+
 #eSt img{
     position: absolute;
     top: 120px;
@@ -70,7 +70,6 @@ padding: 0;
 }
 
 #st img{
-    margin-top: 120px;
     margin-bottom: -70px;
     margin-left: 100px;
 }
@@ -85,6 +84,9 @@ padding: 0;
 #mesNext:active{
     background-color: #ffffff;
 }
-/* #mp ,#hp, #eHp ,#eMp{
+#mp ,#hp, #eHp ,#eMp{
     display: inline;
-} */
+} 
+.pointerNone{
+        pointer-events: none;
+}

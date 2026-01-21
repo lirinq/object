@@ -19,25 +19,30 @@
 ここからステータス    
 ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 -->
-    <div id="eSt">
-        <img src="img/slime_blue.png" alt="enemy_img"  width="200" height="200">
-        <div  class="nes-container is-rounded is-dark statusWin">
-          <p id="eName"></p>
-          <p id="eHp"></p>
-          <p id="eMp"></p>
-          <progress id="eHpBar"  class="nes-progress is-primary" value="100" max="100"></progress>
-        </div>
-    </div>
-
-    <div id="st">
-        <img src="img/haigo.png" alt="hero_img" width="250" height="250">
-        <div  class="nes-container is-rounded is-dark statusWin">
-          <p id="name"></p>
-            <p id="hp"></p>
-            <p id="mp"></p>
-          <progress id="pHpBar"  class="nes-progress is-primary" value="100" max="100"></progress>
-        </div>
-    </div>
+<div id="battleUi">
+  
+      <div id="eSt">
+          <img src="img/slime_blue.png" alt="enemy_img"  width="200" height="200">
+          <div  class="nes-container is-rounded is-dark statusWin">
+            <p id="eName"></p>
+            <p id="eHp"></p>
+            <p id="eMp"></p>
+            <progress id="eHpBar"  class="nes-progress is-primary" value="100" max="100"></progress>
+          </div>
+      </div>
+  
+      <div id="st">
+          <img src="img/haigo.png" alt="hero_img" width="250" height="250">
+          <div  class="nes-container is-rounded is-dark statusWin">
+            <p id="name"></p>
+              <div>
+                <p id="hp"></p>
+                <p id="mp"></p>
+              </div>
+            <progress id="pHpBar"  class="nes-progress is-primary" value="100" max="100"></progress>
+          </div>
+      </div>
+</div>
 
 <!-- 
 ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
@@ -47,7 +52,7 @@
 
 
     <div class="nes-container is-dark with-title" id="window">
-        <div id="selwin" class="nes-container is-dark with-title">
+        <div id="selWin" class="nes-container is-dark with-title">
             <button id="attack-pop-btn" class="act-btn">攻撃</button>
             <div class="atk-pop-win popClose">
                 <ul>
@@ -67,7 +72,7 @@
                 <button class="return-btn"></button>
             </div>
         </div>
-        <div id="meswin" class="nes-container is-dark with-title">
+        <div id="mesWin" class="nes-container is-dark with-title">
             <button id="mesNext"><p id="mesTex"></p></button>
         </div>
     </div>
