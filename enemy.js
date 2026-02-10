@@ -49,46 +49,52 @@ HPの処理専門のメソッドを作ることで、
         }
     }
 
-    castSpell(spell){//MPを消費するときに使うメソッド target=攻撃対象　spell=呼び出す魔法
-        if(this.mp >= spell.mp){//もし詠唱者のMPが呪文の消費MP以上なら
-            this.mp -= spell.mp;//詠唱者のMPから呪文の消費MP文を－する
-            return true;
-            //target.hpEffect(spell.amount);対象者のHPに呪文の影響を与える数値を＋する
-        }else{//上記の条件に当てはまらないのなら
-            //魔法は発動しない
-            return false;
-        }
-    }
+    Action(action){
+		let resourceType = ( action.type === 'mgi' ) ?  'mp' : 'hp';
+		if(this[resourceType] >= action.cost){
+			this[resourceType] -= cost.mp;
+			return true;
+		}else{
+			return false;
+		}
+	}
 
-    doAction(actionCost){
-        if(this.hp >= actionCost.hp){
-            this.hp -= actionCost.hp;
-        }else{
-            return false;
-        }
-    }
 
 }
 // ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 //             ～ここから攻撃に関するクラス～
 // ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 
-class Magic {
-    constructor(name,mp,amount) {
-        this.name = name;//魔法の名前
-        this.mp = mp;//消費MP
-        this.amount = amount;//影響を与える数値
+/*
+    magic・phycicalclassを統合
+    hpcostとmpとして用意していた値をcostに統合
+    魔法・物理の判別用としてtypeの項目を追加
+    これによってtypeがphyならHPからcostを引く、
+    typeがmgiならMPからcostを引くといった魔法と
+    物理攻撃を差別化しながら二つになっていたクラスを
+    ひとつで済ませられる
+*/
+class Skill {
+    constructor(name,cost,amount,type){
+        this.name= name;//作成する動きの名前
+        this.cost= cost;//発動必要コスト
+        this.amount= amount;//発動することで変動する数値
+        this.type =type;//物理・魔法の判断用
     }
-    
 }
-
-class Physical {
-    constructor(name,hpCost,amount) {
-        this.name = name;//魔法の名前
-        this.hpCost = hpCost;//消費する㏋
-        this.amount = amount;//影響を与える数値
-    }
-    
+class item extends Skill{
+	constructor(name,amount,type,count){
+	super(name,amount,type)
+	this.count = count;
+	}
+	use(){
+		if(this.count >=  0){
+		this -= 1;
+		return true;
+		}else{
+		return false;
+		}
+	}
 }
 /*
 ターンの管理
@@ -175,13 +181,13 @@ class UiManager{
     }
 }
 
-let fire = new Magic("fire", 4,-6);
-let ice = new Magic("ice" , 2, -4);
+let fire = new Skill("fire", 4,-6,mgi);
+let ice = new Skill("ice" , 2, -4,mgi);
 let magicAttack = [fire,ice];
-let normal = new Physical("通常攻撃",0,-2);
-let highAttack = new Physical("強攻撃",-4,-7);
+let normal = new Skill("通常攻撃",0,-2,phy);
+let highAttack = new Skill("強攻撃",-4,-7,phy);
 let physicalAttack= [normal,highAttack];
-let healing = new Magic( "ホイミ",4,4);
+let healing = new Skill( "ホイミ",4,4 , mgi);
 /*=======================================
         ここまで攻撃方法
 =========================================*/
@@ -275,7 +281,7 @@ function enemyAction(attacker , target){
         return;
     }
         attacker.doAction(randPhys);
-        attacker.hpEffect(randPhys.hpCost);
+        attacker.hpEffect(randPhys.cost);
         target.hpEffect(randPhys.amount);
         GM.createLog(attacker,target,randPhys);
         mesTex.innerHTML = `<p>${attacker.name}の${randPhys.name}！
@@ -303,7 +309,7 @@ enemyAct.addEventListener('click', ()=>{
 function playerPhyAction(attacker,target){
     const randPhys =physicalAttack[Math.floor(Math.random() * physicalAttack.length)];
     attacker.doAction(randPhys);
-    attacker.hpEffect(randPhys.hpCost);
+    attacker.hpEffect(randPhys.cost);
     target.hpEffect(randPhys.amount);
     GM.createLog(attacker,target,randPhys);
     mesTex.innerHTML = `<p>${attacker.name}の${randPhys.name}！
