@@ -52,7 +52,7 @@ HPの処理専門のメソッドを作ることで、
     Action(action){
 		let resourceType = ( action.type === 'mgi' ) ?  'mp' : 'hp';
 		if(this[resourceType] >= action.cost){
-			this[resourceType] -= cost.mp;
+			this[resourceType] -= action.cost;
 			return true;
 		}else{
 			return false;
@@ -89,7 +89,7 @@ class item extends Skill{
 	}
 	use(){
 		if(this.count >=  0){
-		this -= 1;
+		this.count -= 1;
 		return true;
 		}else{
 		return false;
@@ -181,13 +181,13 @@ class UiManager{
     }
 }
 
-let fire = new Skill("fire", 4,-6,mgi);
-let ice = new Skill("ice" , 2, -4,mgi);
+let fire = new Skill("fire", 4,-6,'mgi');
+let ice = new Skill("ice" , 2, -4,'mgi');
 let magicAttack = [fire,ice];
-let normal = new Skill("通常攻撃",0,-2,phy);
-let highAttack = new Skill("強攻撃",-4,-7,phy);
+let normal = new Skill("通常攻撃",0,-2,'phy');
+let highAttack = new Skill("強攻撃",-4,-7,'phy');
 let physicalAttack= [normal,highAttack];
-let healing = new Skill( "ホイミ",4,4 , mgi);
+let healing = new Skill( "ホイミ",4,4 , 'mgi');
 /*=======================================
         ここまで攻撃方法
 =========================================*/
@@ -261,7 +261,7 @@ function enemyAction(attacker , target){
     let randMgi = magicAttack[Math.floor(Math.random() * magicAttack.length)];
     let randPhys =physicalAttack[Math.floor(Math.random() * physicalAttack.length)];
     if(attacker.hp <= attacker.maxHp / 2 && Math.random() < 0.2){
-        attacker.castSpell(healing);
+        attacker.Action(healing);
         attacker.hpEffect(healing.amount);
         console.log(attacker.name , "ヒール");
         mesTex.innerHTML = `<p>${attacker.name}は${healing.name}を唱えた</p>`;
@@ -271,7 +271,7 @@ function enemyAction(attacker , target){
         refreshStatus();
         return;
     }else if(attacker.mp >= randMgi.mp && Math.random() > 0.5){
-        attacker.castSpell(randMgi);
+        attacker.Action(randMgi);
         target.hpEffect(randMgi.amount);
         mesTex.innerHTML = `<p>${attacker.name}の${randMgi.name}！
         </p><br><p>${randMgi.amount}のダメージを${target.name}に与えた！</p>`;
@@ -280,7 +280,7 @@ function enemyAction(attacker , target){
         refreshStatus();
         return;
     }
-        attacker.doAction(randPhys);
+        attacker.Action(randPhys);
         attacker.hpEffect(randPhys.cost);
         target.hpEffect(randPhys.amount);
         GM.createLog(attacker,target,randPhys);
@@ -308,7 +308,7 @@ enemyAct.addEventListener('click', ()=>{
 
 function playerPhyAction(attacker,target){
     const randPhys =physicalAttack[Math.floor(Math.random() * physicalAttack.length)];
-    attacker.doAction(randPhys);
+    attacker.Action(randPhys);
     attacker.hpEffect(randPhys.cost);
     target.hpEffect(randPhys.amount);
     GM.createLog(attacker,target,randPhys);
@@ -322,7 +322,7 @@ function playerPhyAction(attacker,target){
 function playerMgiAction(attacker,target){
     const randMgi = magicAttack[Math.floor(Math.random() * magicAttack.length)];
     if(attacker.hp <= attacker.maxHp /2 && Math.random() < 0.2){
-        attacker.castSpell(healing);
+        attacker.Action(healing);
         attacker.hpEffect(healing.amount);
         console.log(attacker.name , "ヒール");
         mesTex.innerHTML = `<p>${attacker.name}は${healing.name}を唱えた</p>`;
@@ -331,7 +331,7 @@ function playerMgiAction(attacker,target){
         refreshStatus();
         return;
     }else if(attacker.mp >= randMgi.mp && Math.random() > 0.5){
-        attacker.castSpell(randMgi);
+        attacker.Action(randMgi);
         target.hpEffect(randMgi.amount);
         mesTex.innerHTML = `<p>${attacker.name}の${randMgi.name}!
         </p><br><p>${randMgi.amount}のダメージを${target.name}に与えた！</p>`;
