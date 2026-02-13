@@ -49,46 +49,53 @@ HPの処理専門のメソッドを作ることで、
         }
     }
 
-    castSpell(spell){//MPを消費するときに使うメソッド target=攻撃対象　spell=呼び出す魔法
-        if(this.mp >= spell.mp){//もし詠唱者のMPが呪文の消費MP以上なら
-            this.mp -= spell.mp;//詠唱者のMPから呪文の消費MP文を－する
-            return true;
-            //target.hpEffect(spell.amount);対象者のHPに呪文の影響を与える数値を＋する
-        }else{//上記の条件に当てはまらないのなら
-            //魔法は発動しない
-            return false;
-        }
-    }
+    Action(action){
+		let resourceType = ( action.type === 'mgi' ) ?  'mp' : 'hp';
+		if(this[resourceType] >= action.cost){
+			this[resourceType] -= action.cost;
+			return true;
+		}else{
+			return false;
+		}
+	}
 
-    doAction(actionCost){
-        if(this.hp >= actionCost.hp){
-            this.hp -= actionCost.hp;
-        }else{
-            return false;
-        }
-    }
 
 }
 // ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 //             ～ここから攻撃に関するクラス～
 // ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 
-class Magic {
-    constructor(name,mp,amount) {
-        this.name = name;//魔法の名前
-        this.mp = mp;//消費MP
-        this.amount = amount;//影響を与える数値
+/*
+    magic・phycicalclassを統合
+    hpcostとmpとして用意していた値をcostに統合
+    魔法・物理の判別用としてtypeの項目を追加
+    これによってtypeがphyならHPからcostを引く、
+    typeがmgiならMPからcostを引くといった魔法と
+    物理攻撃を差別化しながら二つになっていたクラスを
+    ひとつで済ませられる
+*/
+class Skill {
+    constructor(name,cost,amount,type){
+        this.name= name;//作成する動きの名前
+        this.cost= cost;//発動必要コスト
+        this.amount= amount;//発動することで変動する数値
+        this.type =type;//物理・魔法の判断用
     }
-    
 }
-
-class Physical {
-    constructor(name,hpCost,amount) {
-        this.name = name;//魔法の名前
-        this.hpCost = hpCost;//消費する㏋
-        this.amount = amount;//影響を与える数値
-    }
-    
+class item extends Skill{
+	constructor(name,amount,type,count){
+    super(name, cost, amount, type); 
+	this.count = count;
+	}
+	use(){
+		if(this.count >  0){
+		this.count -= 1;
+        hpEffect(this.amount);
+		return true;
+		}else{
+		return false;
+		}
+	}
 }
 /*
 ターンの管理
@@ -175,13 +182,13 @@ class UiManager{
     }
 }
 
-let fire = new Magic("fire", 4,-6);
-let ice = new Magic("ice" , 2, -4);
+let fire = new Skill("fire", 4,-6,'mgi');
+let ice = new Skill("ice" , 2, -4,'mgi');
 let magicAttack = [fire,ice];
-let normal = new Physical("通常攻撃",0,-2);
-let highAttack = new Physical("強攻撃",-4,-7);
+let normal = new Skill("通常攻撃",0,-2,'phy');
+let highAttack = new Skill("強攻撃",-4,-7,'phy');
 let physicalAttack= [normal,highAttack];
-let healing = new Magic( "ホイミ",4,4);
+let healing = new Skill( "ホイミ",4,4 , 'heal');
 /*=======================================
         ここまで攻撃方法
 =========================================*/
@@ -255,7 +262,7 @@ function enemyAction(attacker , target){
     let randMgi = magicAttack[Math.floor(Math.random() * magicAttack.length)];
     let randPhys =physicalAttack[Math.floor(Math.random() * physicalAttack.length)];
     if(attacker.hp <= attacker.maxHp / 2 && Math.random() < 0.2){
-        attacker.castSpell(healing);
+        attacker.Action(healing);
         attacker.hpEffect(healing.amount);
         console.log(attacker.name , "ヒール");
         mesTex.innerHTML = `<p>${attacker.name}は${healing.name}を唱えた</p>`;
@@ -264,8 +271,8 @@ function enemyAction(attacker , target){
         changeTurn();
         refreshStatus();
         return;
-    }else if(attacker.mp >= randMgi.mp && Math.random() > 0.5){
-        attacker.castSpell(randMgi);
+    }else if(attacker.mp >= randMgi.cost && Math.random() > 0.5){
+        attacker.Action(randMgi);
         target.hpEffect(randMgi.amount);
         mesTex.innerHTML = `<p>${attacker.name}の${randMgi.name}！
         </p><br><p>${randMgi.amount}のダメージを${target.name}に与えた！</p>`;
@@ -274,8 +281,8 @@ function enemyAction(attacker , target){
         refreshStatus();
         return;
     }
-        attacker.doAction(randPhys);
-        attacker.hpEffect(randPhys.hpCost);
+        attacker.Action(randPhys);
+        attacker.hpEffect(randPhys.cost);
         target.hpEffect(randPhys.amount);
         GM.createLog(attacker,target,randPhys);
         mesTex.innerHTML = `<p>${attacker.name}の${randPhys.name}！
@@ -302,8 +309,8 @@ enemyAct.addEventListener('click', ()=>{
 
 function playerPhyAction(attacker,target){
     const randPhys =physicalAttack[Math.floor(Math.random() * physicalAttack.length)];
-    attacker.doAction(randPhys);
-    attacker.hpEffect(randPhys.hpCost);
+    attacker.Action(randPhys);
+    attacker.hpEffect(randPhys.cost);
     target.hpEffect(randPhys.amount);
     GM.createLog(attacker,target,randPhys);
     mesTex.innerHTML = `<p>${attacker.name}の${randPhys.name}！
@@ -315,8 +322,9 @@ function playerPhyAction(attacker,target){
 
 function playerMgiAction(attacker,target){
     const randMgi = magicAttack[Math.floor(Math.random() * magicAttack.length)];
-    if(attacker.hp <= attacker.maxHp /2 && Math.random() < 0.2){
-        attacker.castSpell(healing);
+        //攻撃者の㏋が最大値の半分　かつ　ランダム生成した数字が0.2より大きい場合（20％
+    if(attacker.hp <= attacker.maxHp / 2 && Math.random() < 0.5){
+        attacker.Action(healing);
         attacker.hpEffect(healing.amount);
         console.log(attacker.name , "ヒール");
         mesTex.innerHTML = `<p>${attacker.name}は${healing.name}を唱えた</p>`;
@@ -324,8 +332,9 @@ function playerMgiAction(attacker,target){
         console.log(GM);
         refreshStatus();
         return;
-    }else if(attacker.mp >= randMgi.mp && Math.random() > 0.5){
-        attacker.castSpell(randMgi);
+        //攻撃者のMPがランダムな魔法のコストより大きい　且つ　ランダム生成した数字が0.5より大きい場合(50%
+    }else if(attacker.mp >= randMgi.cost && Math.random() > 0.5){
+        attacker.Action(randMgi);
         target.hpEffect(randMgi.amount);
         mesTex.innerHTML = `<p>${attacker.name}の${randMgi.name}!
         </p><br><p>${randMgi.amount}のダメージを${target.name}に与えた！</p>`;
@@ -348,3 +357,33 @@ MgiAtkBtn.addEventListener('click' ,()=>{
     changeTurn();
     console.log(GM.logs);
 });
+
+/*====================================================
+
+    敵味方共通の攻撃処理
+
+=======================================================*/
+
+function executeAction(attacker, target, action) {
+
+    // 1. コスト消費
+	let canAct=attacker.Action(action);
+	if(!canAct) {
+    	mesTex.innerHTML = `${attacker.name}はMPが足りない！`;
+    	return false;  // 処理を中断	
+	}
+    // 2. ダメージ/回復処理
+	let なんかいい感じの変数名 =(action.type === 'heal' ) ? attcker : target;
+	なんかいい感じの変数名.hpEffect(action.amount)
+    // 3. ログ作成
+	GM.createLog(attacker,target,action);
+    // 4. メッセージ表示
+	if(action.type === 'heal') {
+    mesTex.innerHTML = `${attacker.name}は${action.name}を唱えた！<br>HPが${action.amount}回復した！`;
+} else {
+    mesTex.innerHTML = `${attacker.name}の${action.name}！<br>${target.name}に${Math.abs(action.amount)}のダメージ！`;
+}
+	 // 5. UI更新・ターン切り替え
+	RefleshTurn();	
+	changeTurn();
+}
