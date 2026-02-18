@@ -84,7 +84,6 @@ class Skill {
 }
 class item extends Skill{
 	constructor(name,amount,type,count){
-<<<<<<< HEAD
     super(name, cost, amount, type); 
 	this.count = count;
 	}
@@ -92,14 +91,6 @@ class item extends Skill{
 		if(this.count >  0){
 		this.count -= 1;
         hpEffect(this.amount);
-=======
-	super(name,amount,type)
-	this.count = count;
-	}
-	use(){
-		if(this.count >=  0){
-		this.count -= 1;
->>>>>>> 149d99990a99d56944eb1e4d272739856cf6bf21
 		return true;
 		}else{
 		return false;
@@ -197,11 +188,7 @@ let magicAttack = [fire,ice];
 let normal = new Skill("通常攻撃",0,-2,'phy');
 let highAttack = new Skill("強攻撃",-4,-7,'phy');
 let physicalAttack= [normal,highAttack];
-<<<<<<< HEAD
 let healing = new Skill( "ホイミ",4,4 , 'heal');
-=======
-let healing = new Skill( "ホイミ",4,4 , 'mgi');
->>>>>>> 149d99990a99d56944eb1e4d272739856cf6bf21
 /*=======================================
         ここまで攻撃方法
 =========================================*/
