@@ -266,8 +266,6 @@ function changeTurn(){
     enemyBtn.classList.toggle('pointerNone');
 }
 
-<<<<<<< HEAD
-=======
 function enemyAction(attacker , target){
     console.count("enemyAction");
 //配列attackからランダムな数値を指定し、取り出すために何度も記述する労力をカット＋結果を統一するため
@@ -352,8 +350,6 @@ function playerMgiAction(attacker,target){
         refreshStatus();
         return;
     }
-}
->>>>>>> 149d99990a99d56944eb1e4d272739856cf6bf21
 
 const PhyAtkBtn= document.getElementById('attack-pop-btn');
 const MgiAtkBtn= document.getElementById('magic-pop-btn');
