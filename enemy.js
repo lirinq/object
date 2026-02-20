@@ -1,6 +1,7 @@
 "use strict";
+const mesTex = document.getElementById('mesTex');
 
-class  chara {
+class  Character {
     constructor(name,breed,hp,mp,maxMp,maxHp){
         this.name = name;
         this.breed = breed;
@@ -8,61 +9,344 @@ class  chara {
         this.mp = mp;
         this.maxMp= maxMp;
         this.maxHp= maxHp;
+//生死の判定用のステータス　trueなら生存　falseなら死亡
+        this.isAlive=true;
+        this.isResult='';
     }
-    
-    damage(dmgtaken){
-        this.hp -= dmgtaken;
-        if(this.hp <= 0){
+
+/*
+hpEffect(amount)
+
+【何をする？】
+HPを増減させる共通処理。
+ダメージ（マイナス）と回復（プラス）を両方扱う。
+
+【なぜ必要？】
+HPの処理専門のメソッドを作ることで、
+・同じ処理を繰り返し書かずに済む
+・HP管理の責任をこのメソッドに集約できる
+
+その結果、
+・神メソッドを防げる
+・HPの上限オーバーやマイナス値を防げる
+
+【どんな時に使う？】
+ほかのメソッドでダメージ・回復などHPを変化させたいとき
+
+【処理の流れ】
+1. amount分HPを増減 2行目
+2. maxHpを超えたらmaxHpに合わせる　3行目～4行目
+3. 0以下ならHPを0にして戦闘不能メッセージ表示　5行目から最後まで
+*/
+
+    hpEffect(amount){
+        this.hp += amount;
+        if(this.hp >= this.maxHp){
+            this.hp = this.maxHp;
+        }else if(this.hp <= 0){
             this.hp = 0;
-            console.log(this.name + 'は倒れた！');
+            this.isAlive =false;
         }
     }
 
-    heal(healtaken){
-        this.hp += healtaken;//healtakenに代入された数値をthis.hp(キャラクターのHP)に足す
-        
-        //代入された値によって変わる内容
-        if(this.hp <= this.maxHp){//もしこのキャラのHPがMAXHP以下なら
-                console.log('HPを' + healtaken + "回復した");
+    Action(action){
+		let resourceType = ( action.type === 'mgi' ) ?  'mp' : 'hp';
+		if(this[resourceType] >= action.cost){
+			this[resourceType] -= action.cost;
+			return true;
+		}else{
+			return false;
+		}
+	}
 
-        }else{//それ以外、つまりHPが満タンかそれ以上の場合
-            console.log('すでにHPは満タンだ！');
-            this.hp = this.maxHp;//最大HPを超えて回復しないように最大HPと現在のHPを同じにする
-        }
-    }
-    castSpell(caster, target,cast){//魔法を唱えるためのプロパティ　(詠唱者、標的、唱える魔法)
-        if(caster.mp < cast.cost){
-            caster.mp -= cast.mp;
-            return cast.effect;
-        }else if(target.mp > cast.cost){
-            console.log('MPがたりない！');
-        }
-    }
 
 }
 // ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 //             ～ここから攻撃に関するクラス～
 // ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 
-class magic {//魔法を作るための型
-    constructor(name,cost,effect) {
-        this.name = name;//魔法の名前
-        this.cost = cost;//消費MP
-        this.effect = effect;//呼び出す関数
+/*
+    magic・phycicalclassを統合
+    hpcostとmpとして用意していた値をcostに統合
+    魔法・物理の判別用としてtypeの項目を追加
+    これによってtypeがphyならHPからcostを引く、
+    typeがmgiならMPからcostを引くといった魔法と
+    物理攻撃を差別化しながら二つになっていたクラスを
+    ひとつで済ませられる
+*/
+class Skill {
+    constructor(name,cost,amount,type){
+        this.name= name;//作成する動きの名前
+        this.cost= cost;//発動必要コスト
+        this.amount= amount;//発動することで変動する数値
+        this.type =type;//物理・魔法の判断用
     }
+}
+class item extends Skill{
+	constructor(name,amount,type,count){
+    super(name, cost, amount, type); 
+	this.count = count;
+	}
+	use(){
+		if(this.count >  0){
+		this.count -= 1;
+        hpEffect(this.amount);
+		return true;
+		}else{
+		return false;
+		}
+	}
+}
+/*
+ターンの管理
+勝敗の確認
+戦闘ログ作成
+ログの保存
+誰に　誰が　何を　の管理？
+*/
+class GameManager{
+    constructor(player,enemy){
+    this.player=player;//charクラスで作成した自キャラを入れる
+    this.enemy=enemy;//charクラスで作成した敵キャラを入れる
+    this.turn='player';//ターンの確認 enemyかplayerが入る
+    this.logs=[];//ログをpushする
+    }
+    /*
+    SwitchTurn(turn)
+    【何をする？】
+    ターンの確認
+    this.turnの値を切り替える
+
+    【なぜ必要？】
+    誰のターンなのかを確認して次に行動する方にターンを切り替える
+
+    【どんな時に使う？】
+    ターンの終了時につかう
+    */
+    SwitchTurn(){
+        if(this.turn === 'player'){
+            this.turn = this.enemy ;
+        }else if(this.turn === 'enemy'){
+            this.turn = this.player;
+        }
+    }
+    /*
+    勝敗確認
+    isResultを書き換える
+    */
+    resultConfirm (){
+        if(this.player.isAlive === false || this.enemy.isAlive === false){
+            this.enemy.isResult = 'lose';
+            this.player.isResult = 'lose';
+            return;   
+        }else if(this.enemy.isAlive === true || this.player.isAlive === false){
+            this.enemy.isResult = 'win';
+            return;
+        }else if(this.player.isAlive === true || this.enemy.isAlive === false){
+            this.player.isResult = 'win';
+            return;
+        }
+            console.log('継戦');
+            return false;
+        };
+
+    /*
+    logの作成・保存
+    logを保存した後蓄積していく一方になってしまう？
+    */
+    createLog(actor,target,spell){
+        this.logs.push({
+            actor,
+            spell,
+            target,
+            actName:spell.name,
+            value: spell.amount
+        });
+    }
+    /*
+    logcheckのためのメソッド
+    logが蓄積しすぎると良くないかもしれないので
+    一定数を超えて物は削除する
+    */
+   checkLog(){
+    this.logs = this.logs.slice(-10);
+   }
     
 }
+/*=============================================
 
+            ここまでGameManagerクラス
 
-function miniHeal(taraget){
-    taraget.hp += 4;    
+===============================================*/
+/*
+ステータスの更新
+メッセージの表示
+GameManagerで作成したログを参照して上記の作業を行う
+*/
+class UiManager{
+    constructor(player,enemy,log){
+        this.player = player;
+        this.enemy = enemy;
+        this.log = log;
+    }
 }
 
+let fire = new Skill("fire", 4,-6,'mgi');
+let ice = new Skill("ice" , 2, -4,'mgi');
+let magicAttack = [fire,ice];
+let normalAttack = new Skill("通常攻撃",0,-2,'phy');
+let highAttack = new Skill("強攻撃",6,-14,'phy');
+let mediumAttack = new Skill("中攻撃",4,-7,'phy')
+let physicalAttack= [mediumAttack,highAttack];
+let healing = new Skill( "ホイミ",4,4 , 'heal');
+/*=======================================
+        ここまで攻撃方法
+=========================================*/
 
-let healing = new magic( "hoimi",4,miniHeal(taraget));
-const slarin = new chara("スラりん","スライムベス",9,38,12,12);
-const slami = new chara("スラみ","スライムベス",14,12,12,12);
+/*=======================================
+        ここからキャラクターの初期設定
+=========================================*/
+const enemySt = new Character("スラりん","スライムベス",100,100,100,100);
+const playerSt = new Character("スラみ","スライムベス",100,100,100,100);
+/*=======================================
+        ここまでキャラ設定
+=========================================*/
 
-slami.castSpell(slami,slami,healing);
-console.log(slami);
+/*=======================================
+        ここからシステム初期設定
+=========================================*/
+let GM = new GameManager(playerSt,enemySt);
+let playerHpBar =  document.getElementById('pHpBar');
+let enemyHpBar =  document.getElementById('eHpBar');//HPバー
+let playerName = document.getElementById('name');
+let enemyName = document.getElementById('eName');//名前
+let playerHp = document.getElementById('hp');
+let enemyHp = document.getElementById('eHp');//HP表記
+let playerMp = document.getElementById('mp');
+let enemyMp = document.getElementById('eMp');//MP表記
+let playerBtn = document.getElementById('selWin');
+let enemyBtn = document.getElementById('mesNext');//行動ボタン
+/*=======================================
+        ここまでシステム初期設定
+=========================================*/
+function refreshStatus(){
+    playerHpBar.value = playerSt.hp;
+    enemyHpBar.value = enemySt.hp;
 
+    playerHp.innerHTML = `HP: ${playerSt.maxHp} / ${playerSt.hp}`;
+    enemyHp.innerHTML = `HP: ${playerSt.maxHp} / ${enemySt.hp}`;
+
+    playerName.innerHTML = `${playerSt.name}`;
+    enemyName.innerHTML = `${enemySt.name}`;
+
+    playerMp.innerHTML = `MP:${playerSt.maxMp}/${playerSt.mp}`;
+    enemyMp.innerHTML = `MP:${enemySt.maxMp}/${enemySt.mp}`;
+
+    enemyBtn.classList.add('pointerNone');
+    
+    if(playerSt.hp <= 0 || enemySt.hp <= 0){
+        GM.resultConfirm();
+        if(playerSt.hp <= 0 && enemySt.hp <= 0){
+            mesTex.innerHTML =`ひきわけ！`;
+        }else if(enemySt.hp <= 0){
+            mesTex.innerHTML = `${playerSt.name}の勝利！`; 
+        }else if(playerSt.hp <= 0){
+            mesTex.innerHTML = `${enemySt.name}の勝利！`; 
+        }
+    }
+
+}
+window.addEventListener('load',refreshStatus);
+
+function changeTurn(){
+    playerBtn.classList.toggle('pointerNone');
+    enemyBtn.classList.toggle('pointerNone');
+}
+/*=======================================
+        ここまでUI初期設定
+=========================================*/
+
+/*====================================================
+
+    敵味方共通の攻撃処理
+
+=======================================================*/
+const PhyAtkBtn= document.getElementById('attack-pop-btn');
+const MgiAtkBtn= document.getElementById('magic-pop-btn');
+const enemyAtkBtn = document.getElementById('mesNext');
+
+function executeAction(attacker, target, action) {
+
+    // 1. コスト消費
+	let canAct=attacker.Action(action);
+	if(!canAct) {
+    mesTex.innerHTML = `${attacker.name}はMPが足りない！`;
+    	return false;  // 処理を中断	
+	}
+    // 2. ダメージ/回復処理
+	let receiver =(action.type === 'heal' ) ? attacker : target;
+	receiver.hpEffect(action.amount)
+    // 3. ログ作成
+	GM.createLog(attacker,target,action);
+    // 4. メッセージ表示
+	if(action.type === 'heal') {
+    mesTex.innerHTML = `${attacker.name}は${action.name}を唱えた！<br>
+    HPが${action.amount}回復した！`;
+} else {
+    mesTex.innerHTML = `${attacker.name}の${action.name}！<br>
+    ${target.name}に${Math.abs(action.amount)}のダメージ！`;
+}
+	 // 5. UI更新・ターン切り替え
+	refreshStatus();	
+	changeTurn();
+    //ログの量を増やしすぎないように削除
+    GM.checkLog();
+}
+
+PhyAtkBtn.addEventListener('click', ()=>{ 
+    // ランダムな物理攻撃を呼ぶ準備
+    let randPhys =physicalAttack[Math.floor(Math.random() * physicalAttack.length)];
+    //呼んだ物理攻撃で攻撃処理
+    executeAction(playerSt,enemySt,randPhys);
+    //確認のためコンソールにログを出力
+    console.log(playerSt.name,GM.logs);
+});
+MgiAtkBtn.addEventListener('click', ()=>{ 
+    // ランダムな魔法攻撃を呼ぶ準備
+    let randMgi = magicAttack[Math.floor(Math.random() * magicAttack.length)];
+    //呼んだ魔法攻撃で攻撃処理
+    executeAction(playerSt,enemySt,randMgi);
+    //確認のためコンソールにログを出力
+    console.log(playerSt.name,GM.logs);
+});
+
+enemyAtkBtn.addEventListener('click' ,()=>{
+    //ここに選択した攻撃方法が代入される
+    let selectSkill;
+    let randMgi = magicAttack[Math.floor(Math.random() * magicAttack.length)];
+    let randPhys =physicalAttack[Math.floor(Math.random() * physicalAttack.length)];
+    //ここから攻撃選択の式
+    if (enemySt.hp <= enemySt.maxHp /2 && Math.random() < 0.5) {
+        //もしエネミーのhpが最大hpの半分以下かつ70％の確率で
+        selectSkill = healing;
+        //選択スキルとしてhealingが代入される
+        //最終的にhealingインスタンスが呼び出され
+        // function executeActionで行動として使用される
+    } else if(enemySt.mp >= randMgi.cost && Math.random() < 0.5) {
+        //もしエネミーの現在のmpがランダムに選択された魔法のMPより多い
+        // 且つ50％の確率で
+        selectSkill = randMgi;
+    } else if(enemySt.hp >= randPhys.cost && Math.random() < 0.5){
+        //もしエネミーの現在のhpがランダムに選択された攻撃のHPより多い
+        // 且つ50％の確率で
+        selectSkill = randPhys;
+    }else{
+        //上記の条件すべてに当てはまらなかった場合は
+        selectSkill = normalAttack;
+        //通常攻撃を行う
+    }
+    //選択したスキルを使用して戦闘処理をする
+    executeAction(enemySt,playerSt,selectSkill);
+    //確認のためコンソールにログを出力
+    console.log(enemySt.name ,GM.logs);
+});
