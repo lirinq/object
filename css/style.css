@@ -10,9 +10,7 @@ body{
     margin: 0 auto;
     max-height: 100vh;
 }
-#battleUi{
-    height: 72vh;
-}
+
 #window{
 background-color: #212529;
 display: flex;
