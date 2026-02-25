@@ -163,6 +163,15 @@ class GameManager{
             value: spell.amount
         });
     }
+    /*
+    logcheckのためのメソッド
+    logが蓄積しすぎると良くないかもしれないので
+    一定数を超えて物は削除する
+    */
+   checkLog(){
+    this.logs = this.logs.slice(-10);
+   }
+    
 }
 /*=============================================
 
@@ -185,9 +194,10 @@ class UiManager{
 let fire = new Skill("fire", 4,-6,'mgi');
 let ice = new Skill("ice" , 2, -4,'mgi');
 let magicAttack = [fire,ice];
-let normal = new Skill("通常攻撃",0,-2,'phy');
-let highAttack = new Skill("強攻撃",-4,-7,'phy');
-let physicalAttack= [normal,highAttack];
+let normalAttack = new Skill("通常攻撃",0,-2,'phy');
+let highAttack = new Skill("強攻撃",6,-14,'phy');
+let mediumAttack = new Skill("中攻撃",4,-7,'phy')
+let physicalAttack= [mediumAttack,highAttack];
 let healing = new Skill( "ホイミ",4,4 , 'heal');
 /*=======================================
         ここまで攻撃方法
@@ -252,111 +262,18 @@ function changeTurn(){
     playerBtn.classList.toggle('pointerNone');
     enemyBtn.classList.toggle('pointerNone');
 }
-
-function enemyAction(attacker , target){
-    console.count("enemyAction");
-//配列attackからランダムな数値を指定し、取り出すために何度も記述する労力をカット＋結果を統一するため
-    let randMgi = magicAttack[Math.floor(Math.random() * magicAttack.length)];
-    let randPhys =physicalAttack[Math.floor(Math.random() * physicalAttack.length)];
-    if(attacker.hp <= attacker.maxHp / 2 && Math.random() < 0.2){
-        attacker.Action(healing);
-        attacker.hpEffect(healing.amount);
-        console.log(attacker.name , "ヒール");
-        mesTex.innerHTML = `<p>${attacker.name}は${healing.name}を唱えた</p>`;
-        GM.createLog(attacker,target,healing);
-        console.log(GM);
-        changeTurn();
-        refreshStatus();
-        return;
-    }else if(attacker.mp >= randMgi.mp && Math.random() > 0.5){
-        attacker.Action(randMgi);
-        target.hpEffect(randMgi.amount);
-        mesTex.innerHTML = `<p>${attacker.name}の${randMgi.name}！
-        </p><br><p>${randMgi.amount}のダメージを${target.name}に与えた！</p>`;
-        GM.createLog(attacker,target,randMgi);
-        changeTurn();
-        refreshStatus();
-        return;
-    }
-        attacker.Action(randPhys);
-        attacker.hpEffect(randPhys.cost);
-        target.hpEffect(randPhys.amount);
-        GM.createLog(attacker,target,randPhys);
-        mesTex.innerHTML = `<p>${attacker.name}の${randPhys.name}！
-        ${target.name}に${randPhys.amount}のダメージ！</p>`;
-        changeTurn();
-        refreshStatus();
-        return;
-}
-
-let enemyAct = document.getElementById('mesNext');
-enemyAct.addEventListener('click', ()=>{
-    enemyAction(enemySt,playerSt);
-    console.log(GM.logs);
-});
-
-/*============================================
-        ここまで敵の攻撃function
-=============================================*/
-
-
-/*============================================
-        ここから味方の攻撃function
-=============================================*/
-
-function playerPhyAction(attacker,target){
-    const randPhys =physicalAttack[Math.floor(Math.random() * physicalAttack.length)];
-    attacker.Action(randPhys);
-    attacker.hpEffect(randPhys.cost);
-    target.hpEffect(randPhys.amount);
-    GM.createLog(attacker,target,randPhys);
-    mesTex.innerHTML = `<p>${attacker.name}の${randPhys.name}！
-    ${target.name}に${randPhys.amount}のダメージ！</p>`;
-    refreshStatus();
-    return;
-}
-
-
-function playerMgiAction(attacker,target){
-    const randMgi = magicAttack[Math.floor(Math.random() * magicAttack.length)];
-    if(attacker.hp <= attacker.maxHp /2 && Math.random() < 0.2){
-        attacker.Action(healing);
-        attacker.hpEffect(healing.amount);
-        console.log(attacker.name , "ヒール");
-        mesTex.innerHTML = `<p>${attacker.name}は${healing.name}を唱えた</p>`;
-        GM.createLog(attacker,target,healing);
-        console.log(GM);
-        refreshStatus();
-        return;
-    }else if(attacker.mp >= randMgi.mp && Math.random() > 0.5){
-        attacker.Action(randMgi);
-        target.hpEffect(randMgi.amount);
-        mesTex.innerHTML = `<p>${attacker.name}の${randMgi.name}!
-        </p><br><p>${randMgi.amount}のダメージを${target.name}に与えた！</p>`;
-        GM.createLog(attacker,target,randMgi);
-        refreshStatus();
-        return;
-    }
-
-const PhyAtkBtn= document.getElementById('attack-pop-btn');
-const MgiAtkBtn= document.getElementById('magic-pop-btn');
-
-PhyAtkBtn.addEventListener('click' ,()=>{ 
-    playerPhyAction(playerSt,enemySt);
-    changeTurn();
-    console.log(GM.logs);
-});
-MgiAtkBtn.addEventListener('click' ,()=>{ 
-    playerMgiAction(playerSt,enemySt);
-    changeTurn();
-    console.log(GM.logs);
-});
+/*=======================================
+        ここまでUI初期設定
+=========================================*/
 
 /*====================================================
-完成後↑は消す
+
     敵味方共通の攻撃処理
 
 =======================================================*/
+const PhyAtkBtn= document.getElementById('attack-pop-btn');
+const MgiAtkBtn= document.getElementById('magic-pop-btn');
+const enemyAtkBtn = document.getElementById('mesNext');
 
 function executeAction(attacker, target, action) {
 
@@ -382,50 +299,54 @@ function executeAction(attacker, target, action) {
 	 // 5. UI更新・ターン切り替え
 	refreshStatus();	
 	changeTurn();
+    //ログの量を増やしすぎないように削除
+    GM.checkLog();
 }
-
-function player(){
-    let randMgi = magicAttack[Math.floor(Math.random() * magicAttack.length)];
-    let randPhys =physicalAttack[Math.floor(Math.random() * physicalAttack.length)];
-    function chosenSkill(){
-        PhyAtkBtn.addEventListener('click' ,()=>{ 
-            return randPhys;
-    });
-        MgiAtkBtn.addEventListener('click' ,()=>{ 
-        return randMgi;
-    });
-    }
-
-    executeAction(playerSt, enemySt ,chosenSkill) ;
-}
-
 
 PhyAtkBtn.addEventListener('click', ()=>{ 
     // ランダムな物理攻撃を呼ぶ準備
     let randPhys =physicalAttack[Math.floor(Math.random() * physicalAttack.length)];
     //呼んだ物理攻撃で攻撃処理
     executeAction(playerSt,enemySt,randPhys);
+    //確認のためコンソールにログを出力
+    console.log(playerSt.name,GM.logs);
 });
 MgiAtkBtn.addEventListener('click', ()=>{ 
     // ランダムな魔法攻撃を呼ぶ準備
     let randMgi = magicAttack[Math.floor(Math.random() * magicAttack.length)];
     //呼んだ魔法攻撃で攻撃処理
     executeAction(playerSt,enemySt,randMgi);
+    //確認のためコンソールにログを出力
+    console.log(playerSt.name,GM.logs);
 });
 
-
-function enemy(){
+enemyAtkBtn.addEventListener('click' ,()=>{
+    //ここに選択した攻撃方法が代入される
+    let selectSkill;
     let randMgi = magicAttack[Math.floor(Math.random() * magicAttack.length)];
     let randPhys =physicalAttack[Math.floor(Math.random() * physicalAttack.length)];
-
-    function selectedSkill(){
-    if(attacker.hp <= attacker.maxHp / 2 && Math.random() < 0.2){
-        return randMgi;
-    }else if(attacker.mp >= randMgi.cost && Math.random() > 0.5){
-        return randPhys;
+    //ここから攻撃選択の式
+    if (enemySt.hp <= enemySt.maxHp /2 && Math.random() < 0.5) {
+        //もしエネミーのhpが最大hpの半分以下かつ70％の確率で
+        selectSkill = healing;
+        //選択スキルとしてhealingが代入される
+        //最終的にhealingインスタンスが呼び出され
+        // function executeActionで行動として使用される
+    } else if(enemySt.mp >= randMgi.cost && Math.random() < 0.5) {
+        //もしエネミーの現在のmpがランダムに選択された魔法のMPより多い
+        // 且つ50％の確率で
+        selectSkill = randMgi;
+    } else if(enemySt.hp >= randPhys.cost && Math.random() < 0.5){
+        //もしエネミーの現在のhpがランダムに選択された攻撃のHPより多い
+        // 且つ50％の確率で
+        selectSkill = randPhys;
     }else{
-        return randPhys;
-    }}
-
-    executeAction( enemySt, playerSt, selectedSkill) ;
-}
+        //上記の条件すべてに当てはまらなかった場合は
+        selectSkill = normalAttack;
+        //通常攻撃を行う
+    }
+    //選択したスキルを使用して戦闘処理をする
+    executeAction(enemySt,playerSt,selectSkill);
+    //確認のためコンソールにログを出力
+    console.log(enemySt.name ,GM.logs);
+});
